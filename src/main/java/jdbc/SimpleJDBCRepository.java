@@ -58,10 +58,10 @@ public class SimpleJDBCRepository {
     public User updateUser(User user) throws SQLException {
         connection = CustomDataSource.getInstance().getConnection();
         String sql = updateUserSQL;
-        sql = sql.replaceFirst("_id", user.getId());
+        sql = sql.replaceFirst("_id", user.getId().toString());
         sql = sql.replaceFirst("_firstname", user.getFirstName());
         sql = sql.replaceFirst("_id", user.getLastName());
-        sql = sql.replaceFirst("_id", user.getAge());
+        sql = sql.replaceFirst("_id", user.getAge().toString());
         ResultSet rs = connection.createStatement().executeQuery(sql);
         return buildUser(rs);
     }
