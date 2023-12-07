@@ -35,7 +35,7 @@ public class SimpleJDBCRepository {
 
     public User findUserById(Long userId) throws SQLException {
         connection = CustomDataSource.getInstance().getConnection();
-        ResultSet rs = connection.createStatement().executeQuery(findUserByIdSQL.replaceFirst("_id", userId.toString()));
+        ResultSet rs = connection.createStatement().executeQuery(findUserByIdSQL.replaceFirst("_id", userId + ""));
         return buildUser(rs);
     }
 
@@ -68,7 +68,7 @@ public class SimpleJDBCRepository {
 
     private void deleteUser(Long userId) throws SQLException {
         connection = CustomDataSource.getInstance().getConnection();
-        connection.createStatement().execute(deleteUser.replaceFirst("_id", userId.toString()));
+        connection.createStatement().execute(deleteUser.replaceFirst("_id", userId + ""));
     }
 
     private User buildUser (ResultSet rs) throws SQLException {
