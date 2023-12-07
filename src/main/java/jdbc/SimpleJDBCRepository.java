@@ -6,9 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -21,28 +20,63 @@ public class SimpleJDBCRepository {
     private PreparedStatement ps = null;
     private Statement st = null;
 
-    private static final String createUserSQL = "";
-    private static final String updateUserSQL = "";
-    private static final String deleteUser = "";
-    private static final String findUserByIdSQL = "";
-    private static final String findUserByNameSQL = "";
-    private static final String findAllUserSQL = "";
+    private static final String createUserSQL = "INSERT INTO myusers (firstname, lastname, age) VALUES ('_firstname', '_lastname', _age)";
+    private static final String updateUserSQL = "UPDATE myusers SET firstname = '_firstname', lastname = '_lastname', age = _age WHERE id = _id";
+    private static final String deleteUser = "DELETE FROM myusers WHERE";
+    private static final String findUserByIdSQL = "SELECT * FROM myusers WHERE id = _id";
+    private static final String findUserByNameSQL = "SELECT * FROM myusers WHERE name like '_name'";
+    private static final String findAllUserSQL = "SELECT * FROM myusers";
 
-    public Long createUser() {
+    public Long createUser() throws SQLException {
+        connection = CustomDataSource.getInstance().getConnection();
+        connection.createStatement().execute(createUserSQL);
+        return null;
     }
 
-    public User findUserById(Long userId) {
+    public User findUserById(Long userId) throws SQLException {
+        connection = CustomDataSource.getInstance().getConnection();
+        ResultSet rs = connection.createStatement().executeQuery(findUserByIdSQL.replaceFirst("_id", userId.toString()));
+        return buildUser(rs);
     }
 
-    public User findUserByName(String userName) {
+    public User findUserByName(String userName) throws SQLException {
+        connection = CustomDataSource.getInstance().getConnection();
+        ResultSet rs = connection.createStatement().executeQuery(findUserByNameSQL.replaceFirst("_name", userName));
+        return buildUser(rs);
     }
 
-    public List<User> findAllUser() {
+    public List<User> findAllUser() throws SQLException {
+        connection = CustomDataSource.getInstance().getConnection();
+        ResultSet rs = connection.createStatement().executeQuery(findAllUserSQL);
+        List<User> users = new ArrayList<>();
+        while(rs.next()){
+            users.add(buildUser(rs));
+        }
+        return users;
     }
 
-    public User updateUser() {
+    public User updateUser(User user) throws SQLException {
+        connection = CustomDataSource.getInstance().getConnection();
+        String sql = updateUserSQL;
+        sql = sql.replaceFirst("_id", user.getId());
+        sql = sql.replaceFirst("_firstname", user.getFirstName());
+        sql = sql.replaceFirst("_id", user.getLastName());
+        sql = sql.replaceFirst("_id", user.getAge());
+        ResultSet rs = connection.createStatement().executeQuery(sql);
+        return buildUser(rs);
     }
 
-    private void deleteUser(Long userId) {
+    private void deleteUser(Long userId) throws SQLException {
+        connection = CustomDataSource.getInstance().getConnection();
+        connection.createStatement().execute(deleteUser.replaceFirst("_id", userId.toString()))
+    }
+
+    private User buildUser (ResultSet rs) throws SQLException {
+        return User.builder()
+                .id(rs.getLong("id"))
+                .firstName(rs.getString("firstname"))
+                .lastName(rs.getString("lastname"))
+                .age(rs.getInt("age"))
+                .build();
     }
 }
