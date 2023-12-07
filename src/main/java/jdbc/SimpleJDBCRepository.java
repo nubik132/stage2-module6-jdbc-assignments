@@ -68,7 +68,7 @@ public class SimpleJDBCRepository {
 
     private void deleteUser(Long userId) throws SQLException {
         connection = CustomDataSource.getInstance().getConnection();
-        connection.createStatement().execute(deleteUser.replaceFirst("_id", userId.toString()))
+        connection.createStatement().execute(deleteUser.replaceFirst("_id", userId.toString()));
     }
 
     private User buildUser (ResultSet rs) throws SQLException {
