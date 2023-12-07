@@ -60,8 +60,8 @@ public class SimpleJDBCRepository {
         String sql = updateUserSQL;
         sql = sql.replaceFirst("_id", user.getId().toString());
         sql = sql.replaceFirst("_firstname", user.getFirstName());
-        sql = sql.replaceFirst("_id", user.getLastName());
-        sql = sql.replaceFirst("_id", user.getAge().toString());
+        sql = sql.replaceFirst("_lastname", user.getLastName());
+        sql = sql.replaceFirst("_age", user.getAge().toString());
         ResultSet rs = connection.createStatement().executeQuery(sql);
         return buildUser(rs);
     }
