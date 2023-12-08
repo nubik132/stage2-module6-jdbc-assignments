@@ -26,11 +26,14 @@ public class SimpleJDBCRepository {
     private static final String findUserByIdSQL = "SELECT * FROM myusers WHERE id = _id";
     private static final String findUserByNameSQL = "SELECT * FROM myusers WHERE name like '_name'";
     private static final String findAllUserSQL = "SELECT * FROM myusers";
-
-    public Long createUser() throws SQLException {
+    private final String[] regexes = {"_id", "_firstName", "_lastName", "_age"};
+    public Long createUser(User user) throws SQLException {
         connection = CustomDataSource.getInstance().getConnection();
-        connection.createStatement().execute(createUserSQL);
-        return null;
+
+        String sql = applyUserDataToSql(createUserSQL, user);
+
+        connection.createStatement().execute(sql);
+        return user.getId();
     }
 
     public User findUserById(Long userId) throws SQLException {
@@ -55,13 +58,12 @@ public class SimpleJDBCRepository {
         return users;
     }
 
-    public User updateUser() throws SQLException {
+    public User updateUser(User user) throws SQLException {
         connection = CustomDataSource.getInstance().getConnection();
         String sql = updateUserSQL;
-        sql = sql.replaceFirst("_id", "299");
-        sql = sql.replaceFirst("_firstname", "");
-        sql = sql.replaceFirst("_lastname", "");
-        sql = sql.replaceFirst("_age", "22");
+
+        sql = applyUserDataToSql(sql, user);
+
         ResultSet rs = connection.createStatement().executeQuery(sql);
         return buildUser(rs);
     }
@@ -78,5 +80,26 @@ public class SimpleJDBCRepository {
                 .lastName(rs.getString("lastname"))
                 .age(rs.getInt("age"))
                 .build();
+    }
+
+    private String[] userToStrings(User user){
+        String[] strings = new String[4];
+        strings[0] = String.valueOf(user.getId());
+        strings[1] = String.valueOf(user.getFirstName());
+        strings[2] = String.valueOf(user.getLastName());
+        strings[3] = String.valueOf(user.getAge());
+        return strings;
+    }
+
+    private String replaceAll(String string, String[] regexes, String[] params){
+        for (int i = 0; i < regexes.length; i++) {
+            string = string.replaceFirst(regexes[i], params[i]);
+        }
+        return string;
+    }
+
+    private String applyUserDataToSql(String sql, User user){
+        String[] userData = userToStrings(user);
+        return replaceAll(sql, regexes, userData);
     }
 }
