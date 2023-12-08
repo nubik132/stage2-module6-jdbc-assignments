@@ -33,8 +33,8 @@ public class CustomDataSource implements DataSource {
             instance = new CustomDataSource(
                     "org.postgresql.Driver",
                     "jdbc:postgresql://localhost:5432/myfirstdb",
-                    "",
-                    ""
+                    "postgres",
+                    "postgres"
             );
         }
         return instance;
