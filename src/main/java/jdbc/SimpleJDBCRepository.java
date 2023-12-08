@@ -27,59 +27,87 @@ public class SimpleJDBCRepository {
     private static final String findUserByNameSQL = "SELECT * FROM myusers WHERE name like '_name'";
     private static final String findAllUserSQL = "SELECT * FROM myusers";
     private final String[] regexes = {"_id", "_firstName", "_lastName", "_age"};
-    public Long createUser(User user) throws SQLException {
-        connection = CustomDataSource.getInstance().getConnection();
+    public Long createUser(User user) {
+        try {
+            connection = CustomDataSource.getInstance().getConnection();
 
-        String sql = applyUserDataToSql(createUserSQL, user);
+            String sql = applyUserDataToSql(createUserSQL, user);
 
-        connection.createStatement().execute(sql);
-        return user.getId();
-    }
-
-    public User findUserById(Long userId) throws SQLException {
-        connection = CustomDataSource.getInstance().getConnection();
-        ResultSet rs = connection.createStatement().executeQuery(findUserByIdSQL.replaceFirst("_id", userId + ""));
-        return buildUser(rs);
-    }
-
-    public User findUserByName(String userName) throws SQLException {
-        connection = CustomDataSource.getInstance().getConnection();
-        ResultSet rs = connection.createStatement().executeQuery(findUserByNameSQL.replaceFirst("_name", userName));
-        return buildUser(rs);
-    }
-
-    public List<User> findAllUser() throws SQLException {
-        connection = CustomDataSource.getInstance().getConnection();
-        ResultSet rs = connection.createStatement().executeQuery(findAllUserSQL);
-        List<User> users = new ArrayList<>();
-        while(rs.next()){
-            users.add(buildUser(rs));
+            connection.createStatement().execute(sql);
+            return user.getId();
+        } catch (SQLException e){
+            throw new RuntimeException();
         }
-        return users;
     }
 
-    public User updateUser(User user) throws SQLException {
-        connection = CustomDataSource.getInstance().getConnection();
-        String sql = updateUserSQL;
-
-        sql = applyUserDataToSql(sql, user);
-
-        ResultSet rs = connection.createStatement().executeQuery(sql);
-        return buildUser(rs);
+    public User findUserById(Long userId) {
+        try {
+            connection = CustomDataSource.getInstance().getConnection();
+            ResultSet rs = connection.createStatement().executeQuery(findUserByIdSQL.replaceFirst("_id", userId + ""));
+            return buildUser(rs);
+        } catch (SQLException e){
+            throw new RuntimeException();
+        }
     }
 
-    public void deleteUser(Long userId) throws SQLException {
-        connection = CustomDataSource.getInstance().getConnection();
-        connection.createStatement().execute(deleteUser.replaceFirst("_id", userId + ""));
+    public User findUserByName(String userName) {
+        try {
+            connection = CustomDataSource.getInstance().getConnection();
+            ResultSet rs = connection.createStatement().executeQuery(findUserByNameSQL.replaceFirst("_name", userName));
+            return buildUser(rs);
+        } catch (SQLException e){
+            throw new RuntimeException();
+        }
     }
 
-    private User buildUser (ResultSet rs) throws SQLException {
-        return User.builder()
-                .id(rs.getLong("id"))
-                .firstName(rs.getString("firstname"))
-                .lastName(rs.getString("lastname"))
-                .age(rs.getInt("age"))
-                .build();
+    public List<User> findAllUser() {
+        try {
+            connection = CustomDataSource.getInstance().getConnection();
+            ResultSet rs = connection.createStatement().executeQuery(findAllUserSQL);
+            List<User> users = new ArrayList<>();
+            while (rs.next()) {
+                users.add(buildUser(rs));
+            }
+            return users;
+        } catch (SQLException e){
+            throw new RuntimeException();
+        }
+    }
+
+    public User updateUser(User user) {
+        try {
+            connection = CustomDataSource.getInstance().getConnection();
+            String sql = updateUserSQL;
+
+            sql = applyUserDataToSql(sql, user);
+
+            ResultSet rs = connection.createStatement().executeQuery(sql);
+            return buildUser(rs);
+        } catch (SQLException e){
+            throw new RuntimeException();
+        }
+    }
+
+    public void deleteUser(Long userId) {
+        try {
+            connection = CustomDataSource.getInstance().getConnection();
+            connection.createStatement().execute(deleteUser.replaceFirst("_id", userId + ""));
+        } catch (SQLException e){
+            throw new RuntimeException();
+        }
+    }
+
+    private User buildUser (ResultSet rs) {
+        try {
+            return User.builder()
+                    .id(rs.getLong("id"))
+                    .firstName(rs.getString("firstname"))
+                    .lastName(rs.getString("lastname"))
+                    .age(rs.getInt("age"))
+                    .build();
+        } catch (SQLException e){
+            throw new RuntimeException();
+        }
     }
 
     private String[] userToStrings(User user){
