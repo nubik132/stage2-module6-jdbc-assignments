@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 @Getter
@@ -30,11 +31,13 @@ public class CustomDataSource implements DataSource {
 
     public static CustomDataSource getInstance() {
         if (instance == null) {
+            Properties props = new Properties();
+
             instance = new CustomDataSource(
-                    "org.postgresql.Driver",
-                    "jdbc:postgresql://localhost:5432/myfirstdb",
-                    "postgres",
-                    "postgres"
+                    props.getProperty("postgres.driver"),
+                    props.getProperty("postgres.url"),
+                    props.getProperty("postgres.password"),
+                    props.getProperty("postgres.name")
             );
         }
         return instance;
