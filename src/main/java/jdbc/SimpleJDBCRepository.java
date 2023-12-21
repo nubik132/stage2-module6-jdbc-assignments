@@ -20,13 +20,13 @@ public class SimpleJDBCRepository {
     private PreparedStatement ps = null;
     private Statement st = null;
 
-    private static final String createUserSQL = "INSERT INTO myusers (firstname, lastname, age) VALUES ('_firstname', '_lastname', _age)";
+    private static final String createUserSQL = "INSERT INTO myusers (id, firstname, lastname, age) VALUES ('_id', '_firstname', '_lastname', _age)";
     private static final String updateUserSQL = "UPDATE myusers SET firstname = '_firstname', lastname = '_lastname', age = _age WHERE id = _id";
     private static final String deleteUser = "DELETE FROM myusers WHERE";
     private static final String findUserByIdSQL = "SELECT * FROM myusers WHERE id = _id";
-    private static final String findUserByNameSQL = "SELECT * FROM myusers WHERE name like '_name'";
+    private static final String findUserByNameSQL = "SELECT * FROM myusers WHERE firstname like '_firstname'";
     private static final String findAllUserSQL = "SELECT * FROM myusers";
-    private final String[] regexes = {"_id", "_firstName", "_lastName", "_age"};
+    private final String[] regexes = {"_id", "_firstname", "_lastname", "_age"};
     public Long createUser(User user) {
         try {
             connection = CustomDataSource.getInstance().getConnection();
@@ -36,6 +36,7 @@ public class SimpleJDBCRepository {
             connection.createStatement().execute(sql);
             return user.getId();
         } catch (SQLException e){
+            e.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -47,6 +48,7 @@ public class SimpleJDBCRepository {
             //rs.next();
             return buildUser(rs);
         } catch (SQLException e){
+            e.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -54,10 +56,11 @@ public class SimpleJDBCRepository {
     public User findUserByName(String userName) {
         try {
             connection = CustomDataSource.getInstance().getConnection();
-            ResultSet rs = connection.createStatement().executeQuery(findUserByNameSQL.replaceFirst("_name", userName));
+            ResultSet rs = connection.createStatement().executeQuery(findUserByNameSQL.replaceFirst("_firstname", userName));
             //rs.next();
             return buildUser(rs);
         } catch (SQLException e){
+            e.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -73,6 +76,7 @@ public class SimpleJDBCRepository {
             }
             return users;
         } catch (SQLException e){
+            e.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -88,6 +92,7 @@ public class SimpleJDBCRepository {
             //rs.next();
             return buildUser(rs);
         } catch (SQLException e){
+            e.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -97,6 +102,7 @@ public class SimpleJDBCRepository {
             connection = CustomDataSource.getInstance().getConnection();
             connection.createStatement().execute(deleteUser.replaceFirst("_id", userId + ""));
         } catch (SQLException e){
+            e.printStackTrace();
             throw new RuntimeException();
         }
     }
