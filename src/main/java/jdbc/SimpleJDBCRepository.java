@@ -22,7 +22,7 @@ public class SimpleJDBCRepository {
 
     private static final String createUserSQL = "INSERT INTO myusers (id, firstname, lastname, age) VALUES ('_id', '_firstname', '_lastname', _age)";
     private static final String updateUserSQL = "UPDATE myusers SET firstname = '_firstname', lastname = '_lastname', age = _age WHERE id = _id";
-    private static final String deleteUser = "DELETE FROM myusers WHERE";
+    private static final String deleteUser = "DELETE FROM myusers WHERE id = _id";
     private static final String findUserByIdSQL = "SELECT * FROM myusers WHERE id = _id";
     private static final String findUserByNameSQL = "SELECT * FROM myusers WHERE firstname like '_firstname'";
     private static final String findAllUserSQL = "SELECT * FROM myusers";
