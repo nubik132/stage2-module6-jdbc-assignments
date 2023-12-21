@@ -73,7 +73,7 @@ public class SimpleJDBCRepository {
     public List<User> findAllUser() {
         try {
             connection = CustomDataSource.getInstance().getConnection();
-            ResultSet rs = connection.createStatement().executeQuery(findAllUserSQL);
+            ResultSet rs = connection.prepareStatement(findAllUserSQL).executeQuery();
             List<User> users = new ArrayList<>();
             while (!rs.isLast()) {
                 users.add(buildUser(rs));
@@ -114,12 +114,11 @@ public class SimpleJDBCRepository {
     private User buildUser (ResultSet rs) {
         try {
             if (rs.next()) {
-                return User.builder()
-                        .id(rs.getLong("id"))
-                        .firstName(rs.getString("firstname"))
-                        .lastName(rs.getString("lastname"))
-                        .age(rs.getInt("age"))
-                        .build();
+                return new User(
+                        rs.getLong("id"),
+                        rs.getString("firstname"),
+                        rs.getString("lastname"),
+                        rs.getInt("age"));
             }
             return null;
         } catch (SQLException e){
