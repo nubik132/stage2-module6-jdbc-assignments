@@ -71,7 +71,7 @@ public class SimpleJDBCRepository {
             ResultSet rs = connection.createStatement().executeQuery(findAllUserSQL);
             List<User> users = new ArrayList<>();
             //rs.next();
-            while (rs.next()) {
+            while (!rs.isLast()) {
                 users.add(buildUser(rs));
             }
             return users;
@@ -88,9 +88,9 @@ public class SimpleJDBCRepository {
 
             sql = applyUserDataToSql(sql, user);
 
-            ResultSet rs = connection.createStatement().executeQuery(sql);
+            connection.createStatement().executeUpdate(sql);
             //rs.next();
-            return buildUser(rs);
+            return findUserById(user.getId());
         } catch (SQLException e){
             e.printStackTrace();
             throw new RuntimeException();
