@@ -44,6 +44,7 @@ public class SimpleJDBCRepository {
         try {
             connection = CustomDataSource.getInstance().getConnection();
             ResultSet rs = connection.createStatement().executeQuery(findUserByIdSQL.replaceFirst("_id", userId + ""));
+            //rs.next();
             return buildUser(rs);
         } catch (SQLException e){
             throw new RuntimeException();
@@ -54,6 +55,7 @@ public class SimpleJDBCRepository {
         try {
             connection = CustomDataSource.getInstance().getConnection();
             ResultSet rs = connection.createStatement().executeQuery(findUserByNameSQL.replaceFirst("_name", userName));
+            //rs.next();
             return buildUser(rs);
         } catch (SQLException e){
             throw new RuntimeException();
@@ -65,6 +67,7 @@ public class SimpleJDBCRepository {
             connection = CustomDataSource.getInstance().getConnection();
             ResultSet rs = connection.createStatement().executeQuery(findAllUserSQL);
             List<User> users = new ArrayList<>();
+            //rs.next();
             while (rs.next()) {
                 users.add(buildUser(rs));
             }
@@ -82,6 +85,7 @@ public class SimpleJDBCRepository {
             sql = applyUserDataToSql(sql, user);
 
             ResultSet rs = connection.createStatement().executeQuery(sql);
+            //rs.next();
             return buildUser(rs);
         } catch (SQLException e){
             throw new RuntimeException();
@@ -99,13 +103,17 @@ public class SimpleJDBCRepository {
 
     private User buildUser (ResultSet rs) {
         try {
-            return User.builder()
-                    .id(rs.getLong("id"))
-                    .firstName(rs.getString("firstname"))
-                    .lastName(rs.getString("lastname"))
-                    .age(rs.getInt("age"))
-                    .build();
+            if (rs.next()) {
+                return User.builder()
+                        .id(rs.getLong("id"))
+                        .firstName(rs.getString("firstname"))
+                        .lastName(rs.getString("lastname"))
+                        .age(rs.getInt("age"))
+                        .build();
+            }
+            return null;
         } catch (SQLException e){
+            e.printStackTrace();
             throw new RuntimeException();
         }
     }

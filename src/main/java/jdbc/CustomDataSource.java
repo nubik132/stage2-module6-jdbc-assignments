@@ -32,7 +32,12 @@ public class CustomDataSource implements DataSource {
     public static CustomDataSource getInstance() {
         if (instance == null) {
             Properties props = new Properties();
-
+            try {
+                props.load(CustomDataSource.class.getClassLoader().getResourceAsStream("app.properties"));
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
             instance = new CustomDataSource(
                     props.getProperty("postgres.driver"),
                     props.getProperty("postgres.url"),
@@ -45,7 +50,7 @@ public class CustomDataSource implements DataSource {
 
     @Override
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url);
+        return DriverManager.getConnection(url, name, password);
     }
 
     @Override
@@ -54,37 +59,37 @@ public class CustomDataSource implements DataSource {
     }
 
     @Override
-    public PrintWriter getLogWriter() throws SQLException {
+    public PrintWriter getLogWriter() {
         return DriverManager.getLogWriter();
     }
 
     @Override
-    public void setLogWriter(PrintWriter out) throws SQLException {
+    public void setLogWriter(PrintWriter out) {
         DriverManager.setLogWriter(out);
     }
 
     @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
+    public void setLoginTimeout(int seconds) {
         DriverManager.setLoginTimeout(seconds);
     }
 
     @Override
-    public int getLoginTimeout() throws SQLException {
+    public int getLoginTimeout() {
         return DriverManager.getLoginTimeout();
     }
 
     @Override
-    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    public Logger getParentLogger() {
         return null;
     }
 
     @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    public <T> T unwrap(Class<T> iface) {
         return null;
     }
 
     @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+    public boolean isWrapperFor(Class<?> iface) {
         return false;
     }
 }
