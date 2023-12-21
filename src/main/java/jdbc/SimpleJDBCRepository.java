@@ -34,21 +34,25 @@ public class SimpleJDBCRepository {
             String sql = applyUserDataToSql(createUserSQL, user);
 
             connection.createStatement().execute(sql);
+            connection.close();
+
             return user.getId();
         } catch (SQLException e){
             e.printStackTrace();
             throw new RuntimeException();
         }
+
     }
 
     public User findUserById(Long userId) {
         try {
             connection = CustomDataSource.getInstance().getConnection();
             ResultSet rs = connection.createStatement().executeQuery(findUserByIdSQL.replaceFirst("_id", userId + ""));
-            //rs.next();
-            return buildUser(rs);
+            User user = buildUser(rs);
+            connection.close();
+            rs.close();
+            return user;
         } catch (SQLException e){
-            e.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -57,10 +61,11 @@ public class SimpleJDBCRepository {
         try {
             connection = CustomDataSource.getInstance().getConnection();
             ResultSet rs = connection.createStatement().executeQuery(findUserByNameSQL.replaceFirst("_firstname", userName));
-            //rs.next();
-            return buildUser(rs);
+            User user = buildUser(rs);
+            connection.close();
+            rs.close();
+            return user;
         } catch (SQLException e){
-            e.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -70,13 +75,13 @@ public class SimpleJDBCRepository {
             connection = CustomDataSource.getInstance().getConnection();
             ResultSet rs = connection.createStatement().executeQuery(findAllUserSQL);
             List<User> users = new ArrayList<>();
-            //rs.next();
             while (!rs.isLast()) {
                 users.add(buildUser(rs));
             }
+            connection.close();
+            rs.close();
             return users;
         } catch (SQLException e){
-            e.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -89,10 +94,9 @@ public class SimpleJDBCRepository {
             sql = applyUserDataToSql(sql, user);
 
             connection.createStatement().executeUpdate(sql);
-            //rs.next();
+            connection.close();
             return findUserById(user.getId());
         } catch (SQLException e){
-            e.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -100,9 +104,9 @@ public class SimpleJDBCRepository {
     public void deleteUser(Long userId) {
         try {
             connection = CustomDataSource.getInstance().getConnection();
-            connection.createStatement().execute(deleteUser.replaceFirst("_id", userId + ""));
+            connection.createStatement().execute(deleteUser.replaceFirst("_id", String.valueOf(userId)));
+            connection.close();
         } catch (SQLException e){
-            e.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -119,7 +123,6 @@ public class SimpleJDBCRepository {
             }
             return null;
         } catch (SQLException e){
-            e.printStackTrace();
             throw new RuntimeException();
         }
     }
