@@ -76,7 +76,7 @@ public class SimpleJDBCRepository {
              PreparedStatement preparedStatement = con.prepareStatement(findAllUserSQL)) {
 
             ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
+            while (!resultSet.isLast()) {
                 users.add(buildUser(resultSet));
             }
             return users;
