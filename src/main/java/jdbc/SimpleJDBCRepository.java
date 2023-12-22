@@ -27,6 +27,7 @@ public class SimpleJDBCRepository {
     private static final String findUserByNameSQL = "SELECT * FROM myusers WHERE firstname like '_firstname'";
     private static final String findAllUserSQL = "SELECT * FROM myusers";
     private final String[] regexes = {"_id", "_firstname", "_lastname", "_age"};
+
     public Long createUser(User user) {
         try {
             connection = CustomDataSource.getInstance().getConnection();
@@ -37,7 +38,7 @@ public class SimpleJDBCRepository {
             connection.close();
 
             return user.getId();
-        } catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException();
         }
@@ -48,11 +49,12 @@ public class SimpleJDBCRepository {
         try {
             connection = CustomDataSource.getInstance().getConnection();
             ResultSet rs = connection.createStatement().executeQuery(findUserByIdSQL.replaceFirst("_id", userId + ""));
+            rs.next();
             User user = buildUser(rs);
             connection.close();
             rs.close();
             return user;
-        } catch (SQLException e){
+        } catch (SQLException e) {
             throw new RuntimeException();
         }
     }
@@ -61,11 +63,12 @@ public class SimpleJDBCRepository {
         try {
             connection = CustomDataSource.getInstance().getConnection();
             ResultSet rs = connection.createStatement().executeQuery(findUserByNameSQL.replaceFirst("_firstname", userName));
+            rs.next();
             User user = buildUser(rs);
             connection.close();
             rs.close();
             return user;
-        } catch (SQLException e){
+        } catch (SQLException e) {
             throw new RuntimeException();
         }
     }
@@ -76,7 +79,7 @@ public class SimpleJDBCRepository {
              PreparedStatement preparedStatement = con.prepareStatement(findAllUserSQL)) {
 
             ResultSet resultSet = preparedStatement.executeQuery();
-            while (!resultSet.isLast()) {
+            while (resultSet.next()) {
                 users.add(buildUser(resultSet));
             }
             return users;
@@ -95,7 +98,7 @@ public class SimpleJDBCRepository {
             connection.createStatement().executeUpdate(sql);
             connection.close();
             return findUserById(user.getId());
-        } catch (SQLException e){
+        } catch (SQLException e) {
             throw new RuntimeException();
         }
     }
@@ -105,27 +108,24 @@ public class SimpleJDBCRepository {
             connection = CustomDataSource.getInstance().getConnection();
             connection.createStatement().execute(deleteUser.replaceFirst("_id", String.valueOf(userId)));
             connection.close();
-        } catch (SQLException e){
+        } catch (SQLException e) {
             throw new RuntimeException();
         }
     }
 
-    private User buildUser (ResultSet rs) {
+    private User buildUser(ResultSet rs) {
         try {
-            if (rs.next()) {
-                return new User(
-                        rs.getLong("id"),
-                        rs.getString("firstname"),
-                        rs.getString("lastname"),
-                        rs.getInt("age"));
-            }
-            return null;
-        } catch (SQLException e){
+            return new User(
+                    rs.getLong("id"),
+                    rs.getString("firstname"),
+                    rs.getString("lastname"),
+                    rs.getInt("age"));
+        } catch (SQLException e) {
             throw new RuntimeException();
         }
     }
 
-    private String[] userToStrings(User user){
+    private String[] userToStrings(User user) {
         String[] strings = new String[4];
         strings[0] = String.valueOf(user.getId());
         strings[1] = String.valueOf(user.getFirstName());
@@ -134,14 +134,14 @@ public class SimpleJDBCRepository {
         return strings;
     }
 
-    private String replaceAll(String string, String[] regexes, String[] params){
+    private String replaceAll(String string, String[] regexes, String[] params) {
         for (int i = 0; i < regexes.length; i++) {
             string = string.replaceFirst(regexes[i], params[i]);
         }
         return string;
     }
 
-    private String applyUserDataToSql(String sql, User user){
+    private String applyUserDataToSql(String sql, User user) {
         String[] userData = userToStrings(user);
         return replaceAll(sql, regexes, userData);
     }
