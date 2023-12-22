@@ -71,18 +71,17 @@ public class SimpleJDBCRepository {
     }
 
     public List<User> findAllUser() {
-        try {
-            connection = CustomDataSource.getInstance().getConnection();
-            ResultSet rs = connection.prepareStatement(findAllUserSQL).executeQuery();
-            List<User> users = new ArrayList<>();
-            while (!rs.isLast()) {
-                users.add(buildUser(rs));
+        List<User> users = new ArrayList<>();
+        try (Connection con = CustomDataSource.getInstance().getConnection();
+             PreparedStatement preparedStatement = con.prepareStatement(findAllUserSQL)) {
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                users.add(buildUser(resultSet));
             }
-            connection.close();
-            rs.close();
             return users;
-        } catch (SQLException e){
-            throw new RuntimeException();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
